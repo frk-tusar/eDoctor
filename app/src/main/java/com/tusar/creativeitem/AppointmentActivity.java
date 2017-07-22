@@ -190,10 +190,12 @@ public class AppointmentActivity extends BaseActivity{
         name_array.add("John Doe");
         name_array.add("John Doe");
         name_array.add("John Doe");
+        name_array.add("John Doe");
 
         ArrayList<String> phone_array = new ArrayList<String>();
         phone_array.add("01618262721");
         phone_array.add("01712394744");
+        phone_array.add("01552192221");
         phone_array.add("01552192221");
 
         //listview
