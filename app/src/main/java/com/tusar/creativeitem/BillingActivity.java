@@ -194,7 +194,7 @@ public class BillingActivity extends BaseActivity{
                     @Override
                     public void onResponse(String response) {
                         //split to string from json response
-                        System.out.println("Billing: "+response);
+                        System.out.println(" Billing: "+response);
 
                         try {
                             JSONArray jsonArray = new JSONArray(response);
