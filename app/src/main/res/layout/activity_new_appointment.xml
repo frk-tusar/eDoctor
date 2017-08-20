@@ -43,7 +43,9 @@
                             <LinearLayout
                                 android:layout_height="match_parent"
                                 android:layout_width="match_parent"
-                                android:orientation="vertical">
+                                android:orientation="vertical"
+                                android:layout_marginLeft="20dp"
+                                android:layout_marginRight="20dp">
 
                                 <EditText
                                     android:id="@+id/etPatName"
@@ -52,8 +54,6 @@
                                     android:hint="Patient Name"
                                     android:textColor="#000"
                                     android:textColorHint="#7c7c7c"
-                                    android:layout_marginLeft="20dp"
-                                    android:layout_marginRight="20dp"
                                     android:layout_marginTop="20dp"
                                     android:padding="10dp"
                                     android:background="@drawable/rounded_edittext"/>
@@ -65,30 +65,38 @@
                                     android:hint="Mobile Num"
                                     android:textColor="#000"
                                     android:textColorHint="#7c7c7c"
-                                    android:layout_marginLeft="20dp"
-                                    android:layout_marginRight="20dp"
                                     android:layout_marginTop="10dp"
                                     android:padding="10dp"
                                     android:background="@drawable/rounded_edittext"/>
 
+                                <!--<EditText-->
+                                    <!--android:id="@+id/etAge"-->
+                                    <!--android:layout_width="match_parent"-->
+                                    <!--android:layout_height="wrap_content"-->
+                                    <!--android:hint="Age"-->
+                                    <!--android:textColor="#000"-->
+                                    <!--android:textColorHint="#7c7c7c"-->
+                                    <!--android:layout_marginTop="10dp"-->
+                                    <!--android:padding="10dp"-->
+                                    <!--android:background="@drawable/rounded_edittext"/>-->
                                 <EditText
-                                    android:id="@+id/etAge"
+                                    android:id="@+id/etDate"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:hint="Age"
-                                    android:textColor="#000"
-                                    android:textColorHint="#7c7c7c"
-                                    android:layout_marginLeft="20dp"
-                                    android:layout_marginRight="20dp"
-                                    android:layout_marginTop="10dp"
+                                    android:background="@drawable/rounded_edittext"
                                     android:padding="10dp"
-                                    android:background="@drawable/rounded_edittext"/>
+                                    android:layout_marginTop="10dp"
+                                    android:drawablePadding="5dp"
+                                    android:textColor="#000"
+                                    android:singleLine="true"
+                                    android:hint="Date"
+                                    android:textColorHint="#7c7c7c"
+                                    android:focusable="false"
+                                    android:drawableRight="@drawable/ic_calender" />
 
                                 <RelativeLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginLeft="20dp"
-                                    android:layout_marginRight="20dp"
                                     android:layout_marginTop="10dp"
                                     android:orientation="horizontal">
 
@@ -115,8 +123,6 @@
                                 <RelativeLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginLeft="20dp"
-                                    android:layout_marginRight="20dp"
                                     android:layout_marginTop="10dp"
                                     android:orientation="horizontal">
 

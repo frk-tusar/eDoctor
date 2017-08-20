@@ -183,7 +183,7 @@ public class BillingActivity extends BaseActivity{
         tvbilling=(TextView)findViewById(R.id.tvbilling);
 
 
-    }//onCreate ends here
+    } //onCreate ends here
 
     public void getAllBilling(final String chamber_id){
         RequestQueue queue = Volley.newRequestQueue(BillingActivity.this);
@@ -249,7 +249,7 @@ public class BillingActivity extends BaseActivity{
                 Date date = null;
                 formatter = new SimpleDateFormat("dd-MM-yyyy");
                 try {
-                    date = (Date)formatter.parse(today);
+                    date = (Date)formatter.parse("21-07-2017");
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -260,7 +260,7 @@ public class BillingActivity extends BaseActivity{
                 params.put("auth_token", token);
                 params.put("user_id", user_id);
                 params.put("chamber_id", chamber_id);
-                // params.put("timestamp", String.valueOf(timeStampDate.getTime()/1000));
+                params.put("timestamp", String.valueOf(timeStampDate.getTime()/1000));
                 params.put("authenticate", "true");
                 System.out.println("params >>> "+params);
                 return params;

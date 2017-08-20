@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -120,12 +121,20 @@ public class NewPatient extends AppCompatActivity {
                 onBackPressed();
                 return true;
             case R.id.action_ok:
-                String name = etname.getText().toString().trim();
-                String mobile = etMobile.getText().toString().trim();
-                String email = etEmail.getText().toString().trim();
-                String age = etAge.getText().toString().trim();
-                String gender = spinner1.getSelectedItem().toString().trim();
-                createPatient(name,mobile,email,age,gender);
+                if(etname.getText().toString().equals("")){
+                    etname.setError("Field can not be blank");
+                }else if(etMobile.getText().toString().equals("")){
+                    etMobile.setError("Field can not be blank");
+                }else if(spinner1.getSelectedItem() == null){
+                    Toast.makeText(getApplicationContext(),"Select Gender",Toast.LENGTH_SHORT).show();
+                }else{
+                    String name = etname.getText().toString().trim();
+                    String mobile = etMobile.getText().toString().trim();
+                    String email = etEmail.getText().toString().trim();
+                    String age = etAge.getText().toString().trim();
+                    String gender = spinner1.getSelectedItem().toString().trim();
+                    createPatient(name,mobile,email,age,gender);
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

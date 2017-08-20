@@ -10,9 +10,11 @@ import android.support.design.widget.NavigationView;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,9 +23,11 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,12 +52,16 @@ import java.util.List;
 import java.util.Map;
 
 import static com.tusar.creativeitem.R.id.etDate;
+import static com.tusar.creativeitem.R.id.etSymptoms;
 
 
 public class PrescriptionActivity extends BaseActivity{
 
     private TableLayout tableLayout, tableLayout1, tableLayout2, tableLayout3;
     private DatabaseHandler db;
+    private EditText etPatName,etMobile,etAge,etSymptoms,etDiagnosis;
+    private Spinner spinner,spinner1;
+    private ArrayList<String> nameList = new ArrayList<String>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,8 +93,11 @@ public class PrescriptionActivity extends BaseActivity{
         db = new DatabaseHandler(this);
 
         //tab1
+        etPatName = (EditText) findViewById(R.id.etPatName);
+        etMobile = (EditText) findViewById(R.id.etMobile);
+        etAge = (EditText) findViewById(R.id.etAge);
 
-        final Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        spinner = (Spinner) findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.gender, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -95,7 +106,7 @@ public class PrescriptionActivity extends BaseActivity{
 
         //Table View codes here
         tableLayout2=(TableLayout)findViewById(R.id.tableLayoutSymptoms);
-        final EditText etSymptoms = (EditText) findViewById(R.id.etSymptoms);
+        etSymptoms = (EditText) findViewById(R.id.etSymptoms);
         ImageButton btnSymptoms = (ImageButton) findViewById(R.id.btnSymptom);
 
         btnSymptoms.setOnClickListener(new View.OnClickListener() {
@@ -108,7 +119,7 @@ public class PrescriptionActivity extends BaseActivity{
 
         //Table View codes here
         tableLayout3=(TableLayout)findViewById(R.id.tableLayoutDiagnosis);
-        final EditText etDiagnosis = (EditText) findViewById(R.id.etDiagnosis);
+        etDiagnosis = (EditText) findViewById(R.id.etDiagnosis);
         ImageButton btnDiagnosis = (ImageButton) findViewById(R.id.btnDiagnosis);
 
         btnDiagnosis.setOnClickListener(new View.OnClickListener() {
@@ -120,16 +131,16 @@ public class PrescriptionActivity extends BaseActivity{
 
         //Table View codes here
         tableLayout=(TableLayout)findViewById(R.id.tableLayoutMedicine);
-        final View tableRow = LayoutInflater.from(PrescriptionActivity.this).inflate(R.layout.table_medicine_row,null,false);
-
-        final TextView medicineName  = (TextView) tableRow.findViewById(R.id.tvMedicineName);
-        final TextView medicineDesc  = (TextView) tableRow.findViewById(R.id.tvMedicineDes);
-        ImageButton delete = (ImageButton) tableRow.findViewById(R.id.btndelete);
-
         ImageButton imgMedicine = (ImageButton) findViewById(R.id.btnMedicine);
         imgMedicine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final View tableRow = LayoutInflater.from(PrescriptionActivity.this).inflate(R.layout.table_medicine_row,null,false);
+
+                final TextView medicineName  = (TextView) tableRow.findViewById(R.id.tvMedicineName);
+                final TextView medicineDesc  = (TextView) tableRow.findViewById(R.id.tvMedicineDes);
+                ImageButton delete = (ImageButton) tableRow.findViewById(R.id.btndelete);
+
                 // custom dialog
                 AlertDialog.Builder builder = new AlertDialog.Builder(PrescriptionActivity.this);
                 builder.setView(R.layout.popup_addmedicine);
@@ -174,21 +185,27 @@ public class PrescriptionActivity extends BaseActivity{
                         }
                     }
                 });
+                delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        tableLayout.removeView(tableRow);
+                    }
+                });
                 dialog.show();
             }
         });
 
         //Table View codes here
         tableLayout1=(TableLayout)findViewById(R.id.tableLayoutTest);
-        final View tableRow1 = LayoutInflater.from(PrescriptionActivity.this).inflate(R.layout.table_test_row,null,false);
-
-        final TextView testName  = (TextView) tableRow1.findViewById(R.id.tvTestName);
-        ImageButton delete1 = (ImageButton) tableRow1.findViewById(R.id.btndelete);
-
         ImageButton imgTest = (ImageButton) findViewById(R.id.btnTest);
         imgTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final View tableRow1 = LayoutInflater.from(PrescriptionActivity.this).inflate(R.layout.table_test_row,null,false);
+
+                final TextView testName  = (TextView) tableRow1.findViewById(R.id.tvTestName);
+                ImageButton delete1 = (ImageButton) tableRow1.findViewById(R.id.btndelete);
+
                 // custom dialog
                 AlertDialog.Builder builder = new AlertDialog.Builder(PrescriptionActivity.this);
                 builder.setView(R.layout.popup_addtest);
@@ -224,21 +241,39 @@ public class PrescriptionActivity extends BaseActivity{
                         }
                     }
                 });
+                delete1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        tableLayout1.removeView(tableRow1);
+                    }
+                });
+
+
                 dialog.show();
             }
         });
 
 
 
+
         //tab2
-        //getPrescription();
+        getPatients();
 
-    }
+        spinner1 = (Spinner) findViewById(R.id.spinnerPatient);
 
-    public void getPrescription(){
+        // Creating adapter for spinner
+        nameList.add("<Select a Patient>");
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, nameList);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner1.setAdapter(new HintSpinnerAdapter(
+                dataAdapter, R.layout.hint_row_item2, this));
+
+    }// onCreate ends here
+
+    public void getPatients(){
 
         RequestQueue queue = Volley.newRequestQueue(PrescriptionActivity.this);
-        String url = AppConfigURL.URL + "get_prescription_history_of_patient";
+        String url = AppConfigURL.URL + "get_patients";
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -246,26 +281,19 @@ public class PrescriptionActivity extends BaseActivity{
                     public void onResponse(String response) {
                         //split to string from json response
                         System.out.println("Res: "+response);
-//                        try {
-//                            JSONArray jsonArray = new JSONArray(response);
-//                            for (int i = 0; i < jsonArray.length(); i++) {
-//                                JSONObject jsonObject = jsonArray.getJSONObject(i);
-//
-//                                String patient_id     = jsonObject.getString("patient_id");
-//                                String name     = jsonObject.getString("name");
-//                                String phone     = jsonObject.getString("phone");
-//                                String address     = jsonObject.getString("address");
-//                                String about     = jsonObject.getString("about");
-//                                String age     = jsonObject.getString("age");
-//                                String gender     = jsonObject.getString("gender");
-//
-//                                // add data into sqlite
-//                                db.addPatient(patient_id,name,phone,address,about,age,gender);
-//
-//                            }
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                                String patient_id     = jsonObject.getString("patient_id");
+                                String name     = jsonObject.getString("name");
+
+                                nameList.add(name);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
 
                     }
                 }, new Response.ErrorListener() {
@@ -276,19 +304,17 @@ public class PrescriptionActivity extends BaseActivity{
 
             }
         }) {
-            //adding parameters to the request 01717255741
+            //adding parameters to the request
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 // get data from sqlite
                 HashMap<String, String> user = db.getUser();
                 final String token = user.get("token");
                 final String user_id = user.get("user_id");
-                final String account_id = user.get("account_id");
 
                 Map<String, String> params = new HashMap<>();
                 params.put("auth_token", token);
                 params.put("user_id", user_id);
-                params.put("patient_id", account_id);
                 params.put("authenticate", "true");
 
                 return params;
@@ -298,9 +324,30 @@ public class PrescriptionActivity extends BaseActivity{
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_ok:
+                if(etSymptoms.getText().toString().equals("")){
+                    etSymptoms.setError("Field can not be blank");
+                }else if(etDiagnosis.getText().toString().equals("")){
+                    etDiagnosis.setError("Field can not be blank");
+                }else if(spinner.getSelectedItem() == null){
+                    Toast.makeText(getApplicationContext(),"Select Gender",Toast.LENGTH_SHORT).show();
+                }else{
 
 
+                    String Symptoms = etSymptoms.getText().toString();
+                    String Diagnosis = etDiagnosis.getText().toString();
 
+                    System.out.println("Test ? "+ Symptoms + " " + Diagnosis);
+                }
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

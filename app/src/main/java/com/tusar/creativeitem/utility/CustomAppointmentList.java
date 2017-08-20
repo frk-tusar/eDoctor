@@ -30,12 +30,14 @@ public class CustomAppointmentList extends ArrayAdapter<String>{
     private final Activity context;
     private ArrayList<String> name_array = new ArrayList<String>();
     private ArrayList<String> phone_array = new ArrayList<String>();
-
-    public CustomAppointmentList(Activity context, ArrayList<String> name_array, ArrayList<String> phone_array) {
+    private ArrayList<String> visit_array = new ArrayList<String>();
+    private int num=01;
+    public CustomAppointmentList(Activity context, ArrayList<String> name_array, ArrayList<String> phone_array, ArrayList<String> visit_array) {
         super(context, R.layout.list_single2, name_array);
         this.context = context;
         this.name_array = name_array;
         this.phone_array = phone_array;
+        this.visit_array = visit_array;
     }
     @Override
     public View getView(int position, View view, ViewGroup parent) {
@@ -43,13 +45,21 @@ public class CustomAppointmentList extends ArrayAdapter<String>{
         LayoutInflater inflater = context.getLayoutInflater();
         View rowView= inflater.inflate(R.layout.list_single2, null, true);
 
+        TextView txt = (TextView) rowView.findViewById(R.id.txt1);
         TextView txtName = (TextView) rowView.findViewById(R.id.txt2);
         TextView txtPhone = (TextView) rowView.findViewById(R.id.txt3);
         final ImageButton imgMore = (ImageButton) rowView.findViewById(R.id.imgMore);
         final ImageButton imgCheck = (ImageButton) rowView.findViewById(R.id.imgCheck);
 
+        String txt1 = String.format("%02d", num);
+        System.out.println("1:>"+txt1);
+        txt.setText(txt1);
         txtName.setText(name_array.get(position));
         txtPhone.setText(phone_array.get(position));
+        if(visit_array.get(position).equals("1")){
+            imgCheck.setImageResource(R.drawable.ic_check_circle_active);
+        }
+
         imgMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,7 +99,7 @@ public class CustomAppointmentList extends ArrayAdapter<String>{
 //                popup.show();//showing popup menu
             }
         });
-
         return rowView;
     }
+
 }

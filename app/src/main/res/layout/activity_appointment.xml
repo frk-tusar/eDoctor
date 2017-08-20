@@ -50,6 +50,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#fff"/>
+        <TextView
+            android:id="@+id/tvAppoint"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="No Appointment List Found"
+            android:textAppearance="@android:style/TextAppearance.Small"/>
     </LinearLayout>
 
     <com.github.clans.fab.FloatingActionMenu

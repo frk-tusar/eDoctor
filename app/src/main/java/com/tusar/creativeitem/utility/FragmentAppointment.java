@@ -81,12 +81,13 @@ public class FragmentAppointment extends Fragment {
                 final String token = user.get("token");
                 final String user_id = user.get("user_id");
 
-                String str_date="10-07-2017";
-                DateFormat formatter ;
+                String today = (android.text.format.DateFormat.format("dd-MM-yyyy", new java.util.Date()).toString());
+                System.out.println("Today >>> "+today);
+                java.text.DateFormat formatter ;
                 Date date = null;
                 formatter = new SimpleDateFormat("dd-MM-yyyy");
                 try {
-                    date = (Date)formatter.parse(str_date);
+                    date = (Date)formatter.parse(today);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -98,7 +99,7 @@ public class FragmentAppointment extends Fragment {
                 params.put("user_id", user_id);
                 params.put("patient_id", patient_id);
                 params.put("authenticate", "true");
-
+                params.put("timestamp", String.valueOf(timeStampDate.getTime()/1000));
                 System.out.println("Params > "+params);
 
                 return params;
