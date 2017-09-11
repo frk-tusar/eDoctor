@@ -1,33 +1,24 @@
 package com.tusar.creativeitem;
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+
+import com.tusar.creativeitem.utility.FragmentMainAppointment;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -39,7 +30,7 @@ import com.android.volley.toolbox.Volley;
 import com.tusar.creativeitem.helper.DatabaseHandler;
 import com.tusar.creativeitem.utility.AppConfigURL;
 import com.tusar.creativeitem.utility.CustomAppointmentList;
-import com.tusar.creativeitem.utility.CustomPatientList;
+import com.tusar.creativeitem.utility.FragmentMainBilling;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,16 +55,20 @@ public class AppointmentActivity extends BaseActivity{
     private com.github.clans.fab.FloatingActionButton fab4;
 
     private DatabaseHandler db;
+    Fragment fragment;
     private ListView list;
     private TextView tvdatePicker;
-    ImageButton btnDecrement,btnIncrement;
+    private ImageButton btnDecrement,btnIncrement;
     private long today_timestamp;
     private TextView tvAppoint;
-    ProgressDialog pDialog;
-
+    private ProgressDialog pDialog;
+    private String chamber_id;
+    private CustomAppointmentList adapter;
     ArrayList<String> name_array = new ArrayList<String>();
     ArrayList<String> phone_array = new ArrayList<String>();
     ArrayList<String> visit_array = new ArrayList<String>();
+    ArrayList<String> appointment_id_array = new ArrayList<String>();
+    ArrayList<String> patient_id_array = new ArrayList<String>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,8 +87,8 @@ public class AppointmentActivity extends BaseActivity{
         fab3 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab3);
         fab4 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab4);
 
-        tvAppoint=(TextView) findViewById(R.id.tvAppoint);
         menuRed.setClosedOnTouchOutside(true);
+
 
         fab1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,18 +118,7 @@ public class AppointmentActivity extends BaseActivity{
                 startActivity(i);
             }
         });
-        btnDecrement = (ImageButton) findViewById(R.id.img1);
 
-        String today = (DateFormat.format("dd-MM-yyyy", new java.util.Date()).toString());
-        Date date = null;
-        java.text.DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-        try {
-            date = (Date)formatter.parse(today);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
-        today_timestamp = timeStampDate.getTime()/1000;
 
         ArrayList<HashMap<String,String>> chamber_list;
         chamber_list = db.getAllChamber();
@@ -144,159 +128,82 @@ public class AppointmentActivity extends BaseActivity{
             content = chamber_list.get(i);
             String status = content.get("status");
             if(status.equals("Selected")){
-                String chamber_id = content.get("chamber_id");
-
-                tvdatePicker = (TextView) findViewById(R.id.datePicker);
-                tvdatePicker.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        // TODO Auto-generated method stub
-                        //To show current date in the datepicker
-                        Calendar mcurrentDate=Calendar.getInstance();
-                        int mYear=mcurrentDate.get(Calendar.YEAR);
-                        int mMonth=mcurrentDate.get(Calendar.MONTH);
-                        int mDay=mcurrentDate.get(Calendar.DAY_OF_MONTH);
-
-                        DatePickerDialog mDatePicker=new DatePickerDialog(AppointmentActivity.this, new DatePickerDialog.OnDateSetListener() {
-                            public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                                // TODO Auto-generated method stub
-                    /*      Your code   to get date and time    */
-                                selectedmonth = selectedmonth+1;
-                                tvdatePicker.setText(selectedday+ "/" + selectedmonth+ "/" + selectedyear);
-                                Date date1 = null;
-                                java.text.DateFormat formatter1 = new SimpleDateFormat("dd/MM/yyyy");
-                                try {
-                                    date1 = (Date)formatter1.parse(tvdatePicker.getText().toString());
-                                    System.out.println("2:> "+date1);
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                java.sql.Timestamp timeStampDate1 = new Timestamp(date1.getTime());
-                                today_timestamp = timeStampDate1.getTime()/1000;
-                            }
-                        },mYear, mMonth, mDay);
-                        mDatePicker.show();
-                    }
-                });
-
-                getAllAppointments(chamber_id,today_timestamp);
+                chamber_id = content.get("chamber_id");
             }
         }
 
+        tvdatePicker = (TextView) findViewById(R.id.datePicker);
+        tvdatePicker.setOnClickListener(new View.OnClickListener() {
 
-
-        btnDecrement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String today = (DateFormat.format("dd-MM-yyyy", new java.util.Date()).toString());
-                System.out.println("Today >>> "+today);
-                java.text.DateFormat formatter ;
-                Date date = null;
-                formatter = new SimpleDateFormat("dd-MM-yyyy");
-                try {
-                    date = (Date)formatter.parse(today);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
-                System.out.println("Today is " + timeStampDate.getTime());
+                // TODO Auto-generated method stub
+                //To show current date in the datepicker
+                Calendar mcurrentDate=Calendar.getInstance();
+                int mYear=mcurrentDate.get(Calendar.YEAR);
+                int mMonth=mcurrentDate.get(Calendar.MONTH);
+                int mDay=mcurrentDate.get(Calendar.DAY_OF_MONTH);
+                fragment = new FragmentMainAppointment();
+                DatePickerDialog mDatePicker=new DatePickerDialog(AppointmentActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                        // TODO Auto-generated method stub
+                        selectedmonth = selectedmonth+1;
+                        tvdatePicker.setText(selectedday+ "/" + selectedmonth+ "/" + selectedyear);
 
-                Calendar cal = Calendar.getInstance();
-                cal.setTime ( date ); // convert your date to Calendar object
-                int daysToDecrement = -1;
-                cal.add(Calendar.DATE, daysToDecrement);
-                date = cal.getTime();
-                System.out.println("Decrement date : "+date);
+                        Date date = null;
+                        java.text.DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                        try {
+                            date = (Date)formatter.parse(tvdatePicker.getText().toString());
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
+                        long today_timestamp = timeStampDate.getTime()/1000;
 
+                        Bundle bundle = new Bundle();
+                        bundle.putString("chamber_id", chamber_id);
+                        bundle.putString("timestamp", String.valueOf(today_timestamp));
+                        fragment.setArguments(bundle);
+                        FragmentManager fm = getFragmentManager();
+                        FragmentTransaction ft = fm.beginTransaction();
+                        ft.replace(R.id.fragment_place2,fragment);
+                        ft.commit();
 
-                tvdatePicker.setText("Yesterday");
-                if(btnDecrement.isClickable()){
-                    btnDecrement.setClickable(false);
-                }
+                    }
+                },mYear, mMonth, mDay);
+                mDatePicker.show();
+
             }
         });
 
 
+        fragment = new FragmentMainAppointment();
+        //initially sent today's date for billing list
+        //today timestamp
+        String today = (DateFormat.format("dd-MM-yyyy", new java.util.Date()).toString());
+        Date date = null;
+        java.text.DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        try {
+            date = (Date)formatter.parse(today);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
+        long today_timestamp = timeStampDate.getTime()/1000;
+
+        Bundle bundle = new Bundle();
+        bundle.putString("chamber_id", chamber_id);
+        bundle.putString("timestamp", String.valueOf(today_timestamp));
+        fragment.setArguments(bundle);
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.fragment_place2,fragment);
+        ft.commit();
+
     }//onCreate ends here
 
-    public void getAllAppointments(final String chamber_id, final long timestamp){
-        pDialog.setMessage("Loading...");
-        showDialog();
-        RequestQueue queue = Volley.newRequestQueue(AppointmentActivity.this);
-        String url = AppConfigURL.URL + "get_appointments";
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        //split to string from json response
-                        System.out.println("Response All Appointment: "+response);
 
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                                JSONArray jsonArray1 = jsonObject.getJSONArray("patient");
-                                System.out.println(jsonArray1);
-                                for (int j = 0; j < jsonArray1.length(); j++) {
-                                    JSONObject jsonObject1 = jsonArray1.getJSONObject(j);
-                                    String name     = jsonObject1.getString("name");
-                                    String phone     = jsonObject1.getString("phone");
-                                    name_array.add(name);
-                                    phone_array.add(phone);
-                                }
-                                String visit = jsonObject.getString("is_visited");
-                                visit_array.add(visit);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        if (name_array.size()== 0){
-                            tvAppoint.setVisibility(View.VISIBLE);
-                            hideDialog();
-                        }
-                        else
-                        {
-                            //listview
-                            CustomAppointmentList adapter = new
-                                    CustomAppointmentList(AppointmentActivity.this, name_array, phone_array, visit_array);
-                            list=(ListView)findViewById(R.id.list);
-                            list.setAdapter(adapter);
-                            hideDialog();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Error Toast
-
-                hideDialog();
-                Toast.makeText(getApplicationContext(),"Error Response",Toast.LENGTH_LONG).show();
-            }
-        }) {
-            //adding parameters to the request
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                // get data from sqlite
-                HashMap<String, String> user = db.getUser();
-                final String token = user.get("token");
-                final String user_id = user.get("user_id");
-
-                Map<String, String> params = new HashMap<>();
-                params.put("auth_token", token);
-                params.put("user_id", user_id);
-                params.put("chamber_id", chamber_id);
-                params.put("timestamp", String.valueOf(timestamp));
-                params.put("authenticate", "true");
-                System.out.println("params >>> "+params);
-                return params;
-
-            }
-        };
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }
     private void showDialog() {
         if (!pDialog.isShowing())
             pDialog.show();
@@ -305,5 +212,4 @@ public class AppointmentActivity extends BaseActivity{
         if (pDialog.isShowing())
             pDialog.dismiss();
     }
-
 }

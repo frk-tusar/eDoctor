@@ -38,7 +38,7 @@ public class PatientDetailsActivity extends AppCompatActivity{
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_chevron_left);
         }
         Intent intent = getIntent();
-        String name = intent.getStringExtra("name");
+        final String name = intent.getStringExtra("name");
         final String patient_id = intent.getStringExtra("patient_id");
         this.setTitle(name);
 

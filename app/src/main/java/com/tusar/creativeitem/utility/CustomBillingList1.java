@@ -31,7 +31,6 @@ public class CustomBillingList1 extends ArrayAdapter<String>{
         View rowView= inflater.inflate(R.layout.list_single5, null, true);
 
         TextView txtName = (TextView) rowView.findViewById(R.id.txt1);
-        TextView txtPhone = (TextView) rowView.findViewById(R.id.txt2);
         TextView txtCharge = (TextView) rowView.findViewById(R.id.txt3);
 
         txtName.setText(name_array.get(position));

@@ -83,17 +83,59 @@ public class FragmentMedical extends Fragment {
                                     String weight     = jsonObject1.getString("weight");
                                     String blood_pressure     = jsonObject1.getString("blood_pressure");
                                     String pulse     = jsonObject1.getString("pulse");
+                                    String bmi="";
                                     String respiration     = jsonObject1.getString("respiration");
                                     String allergy     = jsonObject1.getString("allergy");
                                     String diet     = jsonObject1.getString("diet");
 
-                                    tvBlood.setText(blood_group);
-                                    tvHeight.setText(height);
-                                    tvWeight.setText(weight);
-                                    tvBp.setText(blood_pressure);
-                                    tvPulse.setText(pulse);
-                                    tvRespiration.setText(respiration);
-                                    tvAllergy.setText(allergy);
+                                    if(blood_group.equals("")){
+                                        tvBlood.setText("N/A");
+                                    }
+                                    else {
+                                        tvBlood.setText(blood_group);
+                                    }
+                                    if(height.equals("")){
+                                        tvHeight.setText("N/A");
+                                    }
+                                    else {
+                                        tvHeight.setText(height);
+                                    }
+                                    if(weight.equals("")){
+                                        tvWeight.setText("N/A");
+                                    }
+                                    else {
+                                        tvWeight.setText(weight);
+                                    }
+                                    if(blood_pressure.equals("")){
+                                        tvBp.setText("N/A");
+                                    }
+                                    else {
+                                        tvBp.setText(blood_pressure);
+                                    }
+                                    if(bmi.equals("")){
+                                        tvBmi.setText("N/A");
+                                    }
+                                    else {
+                                        tvBmi.setText(bmi);
+                                    }
+                                    if(pulse.equals("")){
+                                        tvPulse.setText("N/A");
+                                    }
+                                    else {
+                                        tvPulse.setText(pulse);
+                                    }
+                                    if(respiration.equals("")){
+                                        tvRespiration.setText("N/A");
+                                    }
+                                    else {
+                                        tvRespiration.setText(respiration);
+                                    }
+                                    if(allergy.equals("")){
+                                        tvAllergy.setText("N/A");
+                                    }
+                                    else {
+                                        tvAllergy.setText(allergy);
+                                    }
                                     hideDialog();
                                 }
 

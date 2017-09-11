@@ -1,37 +1,22 @@
 package com.tusar.creativeitem;
 
 import android.app.DatePickerDialog;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.tusar.creativeitem.helper.DatabaseHandler;
-import com.tusar.creativeitem.utility.AppConfigURL;
-import com.tusar.creativeitem.utility.CustomAppointmentList;
-import com.tusar.creativeitem.utility.CustomBillingList;
-import com.tusar.creativeitem.utility.CustomBillingList1;
+import com.tusar.creativeitem.utility.FragmentMainBilling;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -40,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 public class BillingActivity extends BaseActivity{
 
@@ -50,13 +34,10 @@ public class BillingActivity extends BaseActivity{
     private com.github.clans.fab.FloatingActionButton fab3;
     private com.github.clans.fab.FloatingActionButton fab4;
 
+    Fragment fragment;
     private DatabaseHandler db;
-    private ListView list;
     private TextView tvdatePicker;
-    ImageButton btnDecrement,btnIncrement;
-    ArrayList<String> name_array = new ArrayList<String>();
-    ArrayList<String> charge_array = new ArrayList<String>();
-    private TextView tvbilling;
+    private String chamber_id;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,9 +86,6 @@ public class BillingActivity extends BaseActivity{
                 startActivity(i);
             }
         });
-        btnDecrement = (ImageButton) findViewById(R.id.img1);
-
-
 
         ArrayList<HashMap<String,String>> chamber_list;
         chamber_list = db.getAllChamber();
@@ -117,158 +95,74 @@ public class BillingActivity extends BaseActivity{
             content = chamber_list.get(i);
             String status = content.get("status");
             if(status.equals("Selected")){
-                String chamber_id = content.get("chamber_id");
-                getAllBilling(chamber_id);
+                chamber_id = content.get("chamber_id");
             }
         }
 
         tvdatePicker = (TextView) findViewById(R.id.datePicker);
         tvdatePicker.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                //To show current date in the datepicker
                 Calendar mcurrentDate=Calendar.getInstance();
                 int mYear=mcurrentDate.get(Calendar.YEAR);
                 int mMonth=mcurrentDate.get(Calendar.MONTH);
                 int mDay=mcurrentDate.get(Calendar.DAY_OF_MONTH);
-
+                fragment = new FragmentMainBilling();
                 DatePickerDialog mDatePicker=new DatePickerDialog(BillingActivity.this, new DatePickerDialog.OnDateSetListener() {
                     public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
                         // TODO Auto-generated method stub
-                    /*      Your code   to get date and time    */
                         selectedmonth = selectedmonth+1;
                         tvdatePicker.setText(selectedday+ "/" + selectedmonth+ "/" + selectedyear);
+
+                        Date date = null;
+                        java.text.DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                        try {
+                            date = (Date)formatter.parse(tvdatePicker.getText().toString());
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
+                        long today_timestamp = timeStampDate.getTime()/1000;
+
+                        Bundle bundle = new Bundle();
+                        bundle.putString("chamber_id", chamber_id);
+                        bundle.putString("timestamp", String.valueOf(today_timestamp));
+                        fragment.setArguments(bundle);
+                        FragmentManager fm = getFragmentManager();
+                        FragmentTransaction ft = fm.beginTransaction();
+                        ft.replace(R.id.fragment_place1,fragment);
+                        ft.commit();
+
                     }
                 },mYear, mMonth, mDay);
                 mDatePicker.show();
             }
         });
 
-        btnDecrement.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String today = (DateFormat.format("dd-MM-yyyy", new java.util.Date()).toString());
-                System.out.println("Today >>> "+today);
-                java.text.DateFormat formatter ;
-                Date date = null;
-                formatter = new SimpleDateFormat("dd-MM-yyyy");
-                try {
-                    date = (Date)formatter.parse(today);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
-                System.out.println("Today is " + timeStampDate.getTime());
+        fragment = new FragmentMainBilling();
+        //initially sent today's date for billing list
+        //today timestamp
+        String today = (DateFormat.format("dd-MM-yyyy", new java.util.Date()).toString());
+        Date date = null;
+        java.text.DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        try {
+            date = (Date)formatter.parse(today);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
+        long today_timestamp = timeStampDate.getTime()/1000;
 
-                Calendar cal = Calendar.getInstance();
-                cal.setTime ( date ); // convert your date to Calendar object
-                int daysToDecrement = -1;
-                cal.add(Calendar.DATE, daysToDecrement);
-                date = cal.getTime();
-                System.out.println("Decrement date : "+date);
+        Bundle bundle = new Bundle();
+        bundle.putString("chamber_id", chamber_id);
+        bundle.putString("timestamp", String.valueOf(today_timestamp));
+        fragment.setArguments(bundle);
 
-
-                tvdatePicker.setText("Yesterday");
-                if(btnDecrement.isClickable()){
-                    btnDecrement.setClickable(false);
-                }
-
-            }
-        });
-
-
-        list=(ListView)findViewById(R.id.list);
-        tvbilling=(TextView)findViewById(R.id.tvbilling);
-
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.fragment_place1,fragment);
+        ft.commit();
 
     } //onCreate ends here
-
-    public void getAllBilling(final String chamber_id){
-        RequestQueue queue = Volley.newRequestQueue(BillingActivity.this);
-        String url = AppConfigURL.URL + "get_invoices";
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        //split to string from json response
-                        System.out.println("Billing: "+response);
-
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                                String patient_name     = jsonObject.getString("patient_name");
-                                String charge     = jsonObject.getString("charge");
-
-                                name_array.add(patient_name);
-                                charge_array.add(charge+ "৳");
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        if (name_array.size()== 0){
-                            tvbilling.setVisibility(View.VISIBLE);
-                        }
-                        else {
-                            CustomBillingList1 adapter = new
-                                    CustomBillingList1(BillingActivity.this, name_array, charge_array);
-                            list.setAdapter(adapter);
-                            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view,
-                                                        int position, long id) {
-
-                                }
-                            });
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Error Toast
-                Toast.makeText(getApplicationContext(),"Error Response",Toast.LENGTH_LONG).show();
-            }
-        }) {
-            //adding parameters to the request
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                // get data from sqlite
-                HashMap<String, String> user = db.getUser();
-                final String token = user.get("token");
-                final String user_id = user.get("user_id");
-
-                String today = (DateFormat.format("dd-MM-yyyy", new java.util.Date()).toString());
-                System.out.println("Today >>> "+today);
-                java.text.DateFormat formatter ;
-                Date date = null;
-                formatter = new SimpleDateFormat("dd-MM-yyyy");
-                try {
-                    date = (Date)formatter.parse("21-07-2017");
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
-                System.out.println("Today is " + timeStampDate.getTime());
-
-                Map<String, String> params = new HashMap<>();
-                params.put("auth_token", token);
-                params.put("user_id", user_id);
-                params.put("chamber_id", chamber_id);
-                params.put("timestamp", String.valueOf(timeStampDate.getTime()/1000));
-                params.put("authenticate", "true");
-                System.out.println("params >>> "+params);
-                return params;
-
-            }
-        };
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }
-
 }

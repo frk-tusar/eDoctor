@@ -1,9 +1,8 @@
 package com.tusar.creativeitem.utility;
 
-import android.app.ProgressDialog;
-import android.content.Intent;
-import android.os.Bundle;
 import android.app.Fragment;
+import android.app.ProgressDialog;
+import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +19,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.tusar.creativeitem.BillingDetailsActivity;
-import com.tusar.creativeitem.PrescriptionDetailsActivity;
+import com.tusar.creativeitem.AppointmentActivity;
 import com.tusar.creativeitem.R;
 import com.tusar.creativeitem.helper.DatabaseHandler;
 
@@ -35,92 +33,95 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class FragmentBilling extends Fragment {
+public class FragmentMainAppointment extends Fragment {
     View view;
     private DatabaseHandler db;
-    String patient_id;
+    String chamber_id,timestamp;
     ProgressDialog pDialog;
     private ListView list;
-    private TextView tvbilling;
+    private TextView tvAppointment;
 
-    ArrayList<String> date_array = new ArrayList<String>();
-    ArrayList<String> charge_array = new ArrayList<String>();
-    ArrayList<String> invoice_id_array = new ArrayList<String>();
+    ArrayList<String> name_array = new ArrayList<String>();
+    ArrayList<String> count_array = new ArrayList<String>();
+    ArrayList<String> phone_array = new ArrayList<String>();
+    ArrayList<String> patient_id_array = new ArrayList<String>();
+    ArrayList<String> visit_array = new ArrayList<String>();
+    ArrayList<String> appointment_id_array = new ArrayList<String>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         db = new DatabaseHandler(getActivity());
         pDialog = new ProgressDialog(getActivity());
-        view = inflater.inflate(R.layout.fragment_billing, container, false);
+        view = inflater.inflate(R.layout.fragment_main_appointment, container, false);
 
-        patient_id= getArguments().getString("patient_id");
+        chamber_id= getArguments().getString("chamber_id");
+        timestamp= getArguments().getString("timestamp");
 
-        getBillingInfo(patient_id);
+        list=(ListView) view.findViewById(R.id.listAppointment);
+        tvAppointment=(TextView) view.findViewById(R.id.tvAppointment);
 
-        list=(ListView) view.findViewById(R.id.listBilling);
-        tvbilling=(TextView) view.findViewById(R.id.tvbilling);
-        // Inflate the layout for this fragment
+        getAllAppointments(chamber_id, Long.parseLong(timestamp));
         return view;
     }
 
-    public void getBillingInfo(final String patient_id){
+    public void getAllAppointments(final String chamber_id, final long timestamp){
         pDialog.setMessage("Loading...");
         showDialog();
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url = AppConfigURL.URL + "get_invoices_of_patient";
+        String url = AppConfigURL.URL + "get_appointments";
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         //split to string from json response
-                        System.out.println("Response: "+response);
+                        System.out.println("Response All Appointment: "+response);
 
                         try {
                             JSONArray jsonArray = new JSONArray(response);
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                                String charge = jsonObject.getString("charge");
-                                String invoice_id = jsonObject.getString("invoice_id");
-                                long timestamp     = Long.parseLong(jsonObject.getString("timestamp"));
-                                String date = getDate(timestamp*1000);
-
-                                date_array.add(date);
-                                charge_array.add(charge + "৳");
-                                invoice_id_array.add(invoice_id);
+                                JSONArray jsonArray1 = jsonObject.getJSONArray("patient");
+                                System.out.println(jsonArray1);
+                                for (int j = 0; j < jsonArray1.length(); j++) {
+                                    JSONObject jsonObject1 = jsonArray1.getJSONObject(j);
+                                    String name     = jsonObject1.getString("name");
+                                    String phone     = jsonObject1.getString("phone");
+                                    String patient_id     = jsonObject1.getString("patient_id");
+                                    count_array.add(String.valueOf(i+1));
+                                    name_array.add(name);
+                                    phone_array.add(phone);
+                                    patient_id_array.add(patient_id);
+                                }
+                                String visit = jsonObject.getString("is_visited");
+                                String appointment_id = jsonObject.getString("appointment_id");
+                                visit_array.add(visit);
+                                appointment_id_array.add(appointment_id);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        if (date_array.size()== 0){
-                            tvbilling.setVisibility(View.VISIBLE);
+                        if (name_array.size()== 0){
+                            tvAppointment.setVisibility(View.VISIBLE);
                             hideDialog();
                         }
-                        else {
-                            CustomBillingList adapter = new
-                                    CustomBillingList(getActivity(), date_array, charge_array);
+                        else
+                        {
+                            System.out.println("count :"+count_array);
+                            CustomAppointmentList adapter = new CustomAppointmentList(getActivity(), name_array,count_array, phone_array, visit_array,patient_id_array,appointment_id_array);
                             list.setAdapter(adapter);
-                            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view,
-                                                        int position, long id) {
-                                    Intent i = new Intent(getActivity(), BillingDetailsActivity.class);
-                                    i.putExtra("invoice_id", invoice_id_array.get(position));
-                                    startActivity(i);
-                                }
-                            });
                             hideDialog();
+
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 //Error Toast
-                hideDialog();
-                Toast.makeText(getActivity(),"Error Response",Toast.LENGTH_LONG).show();
 
+                hideDialog();
+                Toast.makeText(getActivity(),"Check Internet Connection or Response Error!",Toast.LENGTH_SHORT).show();
+                hideDialog();
             }
         }) {
             //adding parameters to the request
@@ -134,9 +135,10 @@ public class FragmentBilling extends Fragment {
                 Map<String, String> params = new HashMap<>();
                 params.put("auth_token", token);
                 params.put("user_id", user_id);
-                params.put("patient_id", patient_id);
+                params.put("chamber_id", chamber_id);
+                params.put("timestamp", String.valueOf(timestamp));
                 params.put("authenticate", "true");
-
+                System.out.println("params >>> "+params);
                 return params;
 
             }
@@ -144,6 +146,7 @@ public class FragmentBilling extends Fragment {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
+
     private void showDialog() {
         if (!pDialog.isShowing())
             pDialog.show();
@@ -151,12 +154,5 @@ public class FragmentBilling extends Fragment {
     private void hideDialog() {
         if (pDialog.isShowing())
             pDialog.dismiss();
-    }
-    private String getDate(long time) {
-
-        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-        cal.setTimeInMillis(time);
-        String date = DateFormat.format("dd-MM-yyyy", cal).toString();
-        return date;
     }
 }

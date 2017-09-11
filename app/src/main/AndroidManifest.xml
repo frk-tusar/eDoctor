@@ -71,6 +71,12 @@
             android:name=".BillingActivity"
             android:label="Billing List"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".PrescriptionDetailsActivity"
+            android:label="Prescription Details" />
+        <activity
+            android:name=".BillingDetailsActivity"
+            android:label="Billing Details"/>
     </application>
 
 </manifest>

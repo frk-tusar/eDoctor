@@ -113,7 +113,7 @@ public class NewPatient extends AppCompatActivity {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
-    // for back button in action bar
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -141,7 +141,7 @@ public class NewPatient extends AppCompatActivity {
         }
     }
 
-    // for edit button in action bar
+    // for tick button in action bar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

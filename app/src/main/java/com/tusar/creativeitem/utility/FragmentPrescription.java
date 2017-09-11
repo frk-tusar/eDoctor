@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -21,6 +22,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.tusar.creativeitem.PatientActivity;
 import com.tusar.creativeitem.PatientDetailsActivity;
+import com.tusar.creativeitem.PrescriptionDetailsActivity;
 import com.tusar.creativeitem.R;
 import com.tusar.creativeitem.helper.DatabaseHandler;
 
@@ -41,9 +43,10 @@ public class FragmentPrescription extends Fragment {
     private DatabaseHandler db;
     private String patient_id;
     ProgressDialog pDialog;
-
+    private TextView tvPrescription;
     private ListView list;
     ArrayList<String> date_array = new ArrayList<String>();
+    ArrayList<String> prescription_id_array = new ArrayList<String>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,11 +56,9 @@ public class FragmentPrescription extends Fragment {
         view = inflater.inflate(R.layout.fragment_prescription, container, false);
 
         patient_id= getArguments().getString("patient_id");
-
         getPrescription(patient_id);
-
         list=(ListView) view.findViewById(R.id.listPrescription);
-
+        tvPrescription=(TextView) view.findViewById(R.id.tvPrescription);
         return  view;
     }
 
@@ -79,28 +80,35 @@ public class FragmentPrescription extends Fragment {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
                                 long timestamp     = Long.parseLong(jsonObject.getString("timestamp"));
+                                String prescription_id = jsonObject.getString("prescription_id");
                                 String date = getDate(timestamp*1000);
-
                                 date_array.add(date);
+                                prescription_id_array.add(prescription_id);
 
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        CustomPrescriptionList adapter = new
-                                CustomPrescriptionList(getActivity(), date_array);
-                        list.setAdapter(adapter);
-                        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        if (date_array.size()== 0){
+                            tvPrescription.setVisibility(View.VISIBLE);
+                            hideDialog();
+                        }
+                        else{
+                            CustomPrescriptionList adapter = new
+                                    CustomPrescriptionList(getActivity(), date_array);
+                            list.setAdapter(adapter);
+                            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view,
+                                                        int position, long id) {
+                                    Intent i = new Intent(getActivity(), PrescriptionDetailsActivity.class);
+                                    i.putExtra("prescription_id", prescription_id_array.get(position));
+                                    startActivity(i);
+                                }
+                            });
+                            hideDialog();
+                        }
 
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view,
-                                                    int position, long id) {
-                                Toast.makeText(getActivity(),"Clicked!",Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
-
-                        hideDialog();
                     }
                 }, new Response.ErrorListener() {
             @Override

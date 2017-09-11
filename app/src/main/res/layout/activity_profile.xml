@@ -230,7 +230,10 @@
             android:layout_weight="0.10" />
 
     </LinearLayout>
-
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.5dp"
+        android:background="#4d999999"/>
 
 
 </LinearLayout>

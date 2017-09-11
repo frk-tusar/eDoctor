@@ -328,20 +328,32 @@ public class PrescriptionActivity extends BaseActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_ok:
-                if(etSymptoms.getText().toString().equals("")){
-                    etSymptoms.setError("Field can not be blank");
-                }else if(etDiagnosis.getText().toString().equals("")){
-                    etDiagnosis.setError("Field can not be blank");
-                }else if(spinner.getSelectedItem() == null){
-                    Toast.makeText(getApplicationContext(),"Select Gender",Toast.LENGTH_SHORT).show();
-                }else{
-
-
+//                if(etSymptoms.getText().toString().equals("")){
+//                    etSymptoms.setError("Field can not be blank");
+//                }else if(etDiagnosis.getText().toString().equals("")){
+//                    etDiagnosis.setError("Field can not be blank");
+//                }else if(spinner.getSelectedItem() == null){
+//                    Toast.makeText(getApplicationContext(),"Select Gender",Toast.LENGTH_SHORT).show();
+//                }else{
                     String Symptoms = etSymptoms.getText().toString();
                     String Diagnosis = etDiagnosis.getText().toString();
+                    for(int i = 0, j = tableLayout.getChildCount(); i < j-1; i++) {
+                        View view = tableLayout.getChildAt(i+1);
+                        LinearLayout layout = (LinearLayout)findViewById(R.id.linearLay);
 
-                    System.out.println("Test ? "+ Symptoms + " " + Diagnosis);
-                }
+                        TableRow t = (TableRow) layout.getChildAt(1);
+                        TextView firstTextView = (TextView) t.getChildAt(0);
+
+                        System.out.println("chk:" + view);
+                       // TableRow t = (TableRow) view;
+                       // TextView firstTextView = (TextView) t.getChildAt(0);
+//                        TextView secondTextView = (TextView) t.getChildAt(1);
+                       // String firstText = firstTextView.getText().toString();
+  //                      String secondText = secondTextView.getText().toString();
+                       // System.out.println("Check1: "+ firstText);
+   //                     System.out.println("Check2: "+ secondText);
+                    }
+                //}
 
                 return true;
             default:

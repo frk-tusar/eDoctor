@@ -17,13 +17,13 @@
             android:layout_height="wrap_content"
             android:background="@color/colorNavBackground"
             android:padding="20dp">
-            <ImageButton
-                android:id="@+id/img1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_chevron_left_black"
-                android:background="@android:color/transparent"
-                android:layout_alignParentLeft="true"/>
+            <!--<ImageButton-->
+                <!--android:id="@+id/img1"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:src="@drawable/ic_chevron_left_black"-->
+                <!--android:background="@android:color/transparent"-->
+                <!--android:layout_alignParentLeft="true"/>-->
 
             <TextView
                 android:id="@+id/datePicker"
@@ -36,29 +36,37 @@
                 android:drawableLeft="@drawable/ic_calender"
                 android:drawablePadding="3dp"/>
 
-            <ImageButton
-                android:id="@+id/img2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_chevron_right_black"
-                android:background="@android:color/transparent"
-                android:layout_alignParentRight="true"/>
+
+            <!--<ImageButton-->
+                <!--android:id="@+id/img2"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:src="@drawable/ic_chevron_right_black"-->
+                <!--android:background="@android:color/transparent"-->
+                <!--android:layout_alignParentRight="true"/>-->
         </RelativeLayout>
 
-        <ListView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#fff"/>
-        <TextView
-            android:id="@+id/tvbilling"
+        <FrameLayout
+            android:name="com.tusar.creativeitem.utility.FragmentMainBilling"
+            android:id="@+id/fragment_place1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible"
-            android:gravity="center"
-            android:padding="10dp"
-            android:text="No Billing History Found"
-            android:textAppearance="@android:style/TextAppearance.Small"/>
+            />
+
+        <!--<ListView-->
+            <!--android:id="@+id/list"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="#fff"/>-->
+        <!--<TextView-->
+            <!--android:id="@+id/tvBilling"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:visibility="invisible"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="10dp"-->
+            <!--android:text="No Billing List Found"-->
+            <!--android:textAppearance="@android:style/TextAppearance.Small"/>-->
     </LinearLayout>
 
     <com.github.clans.fab.FloatingActionMenu

@@ -3,10 +3,12 @@ package com.tusar.creativeitem.utility;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,7 +19,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.tusar.creativeitem.LoginActivity;
+import com.tusar.creativeitem.BillingActivity;
 import com.tusar.creativeitem.R;
 import com.tusar.creativeitem.helper.DatabaseHandler;
 
@@ -25,88 +27,84 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
-public class FragmentBasic extends Fragment {
+public class FragmentMainBilling extends Fragment {
     View view;
     private DatabaseHandler db;
-    String patient_id;
-    TextView tvName,tvEmail,tvAge,tvGender,tvMobile;
-
+    String chamber_id,timestamp;
     ProgressDialog pDialog;
+    private ListView list;
+    private TextView tvbilling;
+
+    ArrayList<String> name_array = new ArrayList<String>();
+    ArrayList<String> charge_array = new ArrayList<String>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         db = new DatabaseHandler(getActivity());
         pDialog = new ProgressDialog(getActivity());
-        view = inflater.inflate(R.layout.fragment_basic, container, false);
+        view = inflater.inflate(R.layout.fragment_main_billing, container, false);
 
-        tvName = (TextView) view.findViewById(R.id.tvName);
-        tvEmail = (TextView) view.findViewById(R.id.tvEmail);
-        tvAge = (TextView) view.findViewById(R.id.tvAge);
-        tvGender = (TextView) view.findViewById(R.id.tvGender);
-        tvMobile = (TextView) view.findViewById(R.id.tvMobile);
+        chamber_id= getArguments().getString("chamber_id");
+        timestamp= getArguments().getString("timestamp");
 
-        patient_id= getArguments().getString("patient_id");
+        list=(ListView) view.findViewById(R.id.listBilling);
+        tvbilling=(TextView) view.findViewById(R.id.tvbilling);
 
-        getBasicInfo();
-
-        // Inflate the layout for this fragment
+        getAllBilling(chamber_id,timestamp);
         return view;
     }
-    public void getBasicInfo(){
+
+    public void getAllBilling(final String chamber_id, final String timestamp){
         pDialog.setMessage("Loading...");
         showDialog();
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url = AppConfigURL.URL + "get_basic_info_of_patient";
+        String url = AppConfigURL.URL + "get_invoices";
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         //split to string from json response
-                        System.out.println("Response: "+response);
+                        System.out.println("Billing: "+response);
                         try {
                             JSONArray jsonArray = new JSONArray(response);
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                                String patient_id     = jsonObject.getString("patient_id");
-                                String name     = jsonObject.getString("name");
-                                String phone     = jsonObject.getString("phone");
-                                String email = "";
-                                String address     = jsonObject.getString("address");
-                                String about     = jsonObject.getString("about");
-                                String age     = jsonObject.getString("age");
-                                String gender     = jsonObject.getString("gender");
+                                String patient_name     = jsonObject.getString("patient_name");
+                                String charge     = jsonObject.getString("charge");
 
-                                if(name.equals("")){
-                                    tvName.setText("N/A");
-                                }
-                                else{tvName.setText(name);}
-                                if(email.equals("")){
-                                    tvEmail.setText("N/A");
-                                }
-                                else{tvEmail.setText(email);}
-                                if(age.equals("")){
-                                    tvAge.setText("N/A");
-                                }
-                                else{tvAge.setText(age);}
-                                if(gender.equals("")){
-                                    tvGender.setText("N/A");
-                                }
-                                else{tvGender.setText(gender);}
-                                if(phone.equals("")){
-                                    tvMobile.setText("N/A");
-                                }
-                                else{tvMobile.setText(phone);}
-
-                                hideDialog();
-
+                                name_array.add(patient_name);
+                                charge_array.add(charge+ "৳");
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
+                        }
+                        if (name_array.size()== 0){
+                            tvbilling.setVisibility(View.VISIBLE);
+                            hideDialog();
+                        }
+                        else {
+                            CustomBillingList1 adapter = new
+                                    CustomBillingList1(getActivity(), name_array, charge_array);
+                            list.setAdapter(adapter);
+                            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view,
+                                                        int position, long id) {
+
+                                }
+                            });
                             hideDialog();
                         }
 
@@ -115,9 +113,8 @@ public class FragmentBasic extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 //Error Toast
+                Toast.makeText(getActivity(),"Check Internet Connection or Response Error!",Toast.LENGTH_SHORT).show();
                 hideDialog();
-                Toast.makeText(getActivity(),"Error Response",Toast.LENGTH_LONG).show();
-
             }
         }) {
             //adding parameters to the request
@@ -131,11 +128,10 @@ public class FragmentBasic extends Fragment {
                 Map<String, String> params = new HashMap<>();
                 params.put("auth_token", token);
                 params.put("user_id", user_id);
-                params.put("patient_id", patient_id);
+                params.put("chamber_id", chamber_id);
+                params.put("timestamp", String.valueOf(timestamp));
                 params.put("authenticate", "true");
-
                 return params;
-
             }
         };
         // Add the request to the RequestQueue.
@@ -148,5 +144,11 @@ public class FragmentBasic extends Fragment {
     private void hideDialog() {
         if (pDialog.isShowing())
             pDialog.dismiss();
+    }
+    private String getDate(long time) {
+        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+        cal.setTimeInMillis(time);
+        String date = DateFormat.format("dd-MM-yyyy", cal).toString();
+        return date;
     }
 }
