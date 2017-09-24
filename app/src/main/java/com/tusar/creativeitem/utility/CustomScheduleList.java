@@ -33,11 +33,11 @@ public class CustomScheduleList extends ArrayAdapter<String>{
         LayoutInflater inflater = context.getLayoutInflater();
         View rowView= inflater.inflate(R.layout.list_single1, null, true);
 
-        TextView txtName = (TextView) rowView.findViewById(R.id.txt1);
-        TextView txtPhone = (TextView) rowView.findViewById(R.id.txt2);
+        TextView day = (TextView) rowView.findViewById(R.id.txt1);
+        TextView time = (TextView) rowView.findViewById(R.id.txt2);
 
-        txtName.setText(day_array.get(position));
-        txtPhone.setText(time_array.get(position));
+        day.setText(day_array.get(position));
+        time.setText(time_array.get(position));
 
         return rowView;
     }

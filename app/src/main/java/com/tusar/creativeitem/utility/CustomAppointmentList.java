@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -34,6 +35,7 @@ import com.android.volley.toolbox.Volley;
 import com.tusar.creativeitem.AppointmentActivity;
 import com.tusar.creativeitem.PatientActivity;
 import com.tusar.creativeitem.PatientDetailsActivity;
+import com.tusar.creativeitem.PrescriptionActivity;
 import com.tusar.creativeitem.R;
 import com.tusar.creativeitem.helper.DatabaseHandler;
 
@@ -109,13 +111,17 @@ public class CustomAppointmentList extends ArrayAdapter<String>{
                             i.putExtra("patient_id", patient_id_array.get(position));
                             context.startActivity(i);
                         } else if(item == 1) {
+                            Intent ii = new Intent(context, PrescriptionActivity.class);
+                            ii.putExtra("condition","tab2");
+                            ii.putExtra("patient_id", patient_id_array.get(position));
+                            context.startActivity(ii);
 
                         } else if(item == 2) {
                             if(visit_array.get(position).equals("1")){
-                                is_visited = "1";
+                                is_visited = "0";
                             }
                             else {
-                                is_visited = "0";
+                                is_visited = "1";
                             }
                             update_appointment_visit_status(appointment_id_array.get(position),is_visited);
                         }
@@ -159,6 +165,7 @@ public class CustomAppointmentList extends ArrayAdapter<String>{
                         if(response.equals("success")){
                             Intent ii = new Intent (getContext(), AppointmentActivity.class);
                             context.startActivity(ii);
+                            Toast.makeText(getContext(),"Visit status updated successfully.",Toast.LENGTH_SHORT).show();
                         }
                         else {
                             Toast.makeText(getContext(),"There is a problem while updating",Toast.LENGTH_SHORT).show();

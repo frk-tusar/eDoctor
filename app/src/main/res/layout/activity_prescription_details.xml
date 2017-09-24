@@ -198,6 +198,7 @@
             android:id="@+id/tvSymptoms"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="#000"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:padding="20dp"/>
         <TextView
@@ -212,6 +213,7 @@
             android:id="@+id/tvDiagnosis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="#000"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:padding="20dp"/>
 

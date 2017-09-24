@@ -54,7 +54,6 @@ public class CustomGridviewAdapter extends BaseAdapter{
     {
         TextView os_text;
         ImageView os_images;
-        ImageView del_images;
     }
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
@@ -65,20 +64,12 @@ public class CustomGridviewAdapter extends BaseAdapter{
         rowView = inflater.inflate(R.layout.gridlayout, null);
         holder.os_text =(TextView) rowView.findViewById(R.id.gv_texts);
         holder.os_images = (ImageView) rowView.findViewById(R.id.gv_images);
-        holder.del_images = (ImageView) rowView.findViewById(R.id.imageDel);
-        holder.del_images.setVisibility(View.INVISIBLE);
+
         holder.os_text.setText(result.get(position));
         if(result.get(position).equals("Add")){
             holder.os_images.setImageResource(R.mipmap.plus);
         }
 
-        holder.del_images.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                result.remove(position);
-                notifyDataSetChanged();
-            }
-        });
 //        rowView.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {

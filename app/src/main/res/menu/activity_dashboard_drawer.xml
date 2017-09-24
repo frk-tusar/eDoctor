@@ -31,6 +31,10 @@
             android:icon="@mipmap/setting_icon"
             android:title="Profile" />
         <item
+            android:id="@+id/nav_password"
+            android:icon="@drawable/ic_password"
+            android:title="Change Password" />
+        <item
             android:id="@+id/nav_logout"
             android:icon="@mipmap/logout_icon"
             android:title="Logout" />

@@ -116,7 +116,7 @@ public class BillingDetailsActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 //Error Toast
                 hideDialog();
-                Toast.makeText(getApplicationContext(),"Error Response",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),"Response Error from Server!",Toast.LENGTH_SHORT).show();
 
             }
         }) {
@@ -131,9 +131,9 @@ public class BillingDetailsActivity extends AppCompatActivity {
                 Map<String, String> params = new HashMap<>();
                 params.put("auth_token", token);
                 params.put("user_id", user_id);
-                params.put("prescription_id", invoice_id);
+                params.put("invoice_id", invoice_id);
                 params.put("authenticate", "true");
-
+                System.out.println("Params1: "+params);
                 return params;
 
             }

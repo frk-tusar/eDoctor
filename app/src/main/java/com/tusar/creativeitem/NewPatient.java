@@ -1,5 +1,6 @@
 package com.tusar.creativeitem;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -31,7 +32,7 @@ import java.util.Map;
 
 public class NewPatient extends AppCompatActivity {
 
-    EditText etname,etMobile,etAge,etEmail;
+    EditText etname,etMobile,etAge,etAddress;
     Spinner spinner1;
     private DatabaseHandler db;
 
@@ -50,7 +51,7 @@ public class NewPatient extends AppCompatActivity {
         etname = (EditText) findViewById(R.id.etPatName);
         etMobile = (EditText) findViewById(R.id.etMobile);
         etAge = (EditText) findViewById(R.id.etAge);
-        etEmail = (EditText) findViewById(R.id.etEmail);
+        etAddress = (EditText) findViewById(R.id.etAddress);
         spinner1 = (Spinner) findViewById(R.id.spinner_gender);
 
         ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(this,
@@ -62,7 +63,7 @@ public class NewPatient extends AppCompatActivity {
 
     }//onCreate ends
 
-    public void createPatient(final String name, final String mobile, final String email, final String age, final String gender){
+    public void createPatient(final String name, final String mobile, final String address, final String age, final String gender){
 
         RequestQueue queue = Volley.newRequestQueue(NewPatient.this);
         String url = AppConfigURL.URL + "create_patient";
@@ -72,9 +73,11 @@ public class NewPatient extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         //split to string from json response
-                        System.out.println("Res: "+response);
+                        System.out.println("Respone for Create Patient: "+response);
                         if(response.equals("success")){
                             Toast.makeText(getApplicationContext(),"Add Patient Successfully!",Toast.LENGTH_SHORT).show();
+                            Intent ii = new Intent(NewPatient.this, PatientActivity.class);
+                            startActivity(ii);
                         }
                         else {
                             Toast.makeText(getApplicationContext(),"There is a problem while create new patient.",Toast.LENGTH_SHORT).show();
@@ -101,11 +104,12 @@ public class NewPatient extends AppCompatActivity {
                 params.put("user_id", user_id);
                 params.put("name", name);
                 params.put("phone", mobile);
-                params.put("email", email);
+                params.put("address", address);
                 params.put("age", age);
                 params.put("gender", gender);
                 params.put("authenticate", "true");
 
+                System.out.println("Sent data for new patient: " + params);
                 return params;
 
             }
@@ -130,10 +134,10 @@ public class NewPatient extends AppCompatActivity {
                 }else{
                     String name = etname.getText().toString().trim();
                     String mobile = etMobile.getText().toString().trim();
-                    String email = etEmail.getText().toString().trim();
+                    String address = etAddress.getText().toString().trim();
                     String age = etAge.getText().toString().trim();
                     String gender = spinner1.getSelectedItem().toString().trim();
-                    createPatient(name,mobile,email,age,gender);
+                    createPatient(name,mobile,address,age,gender);
                 }
                 return true;
             default:

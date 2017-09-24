@@ -1,6 +1,7 @@
 package com.tusar.creativeitem.utility;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.text.format.DateFormat;
@@ -20,6 +21,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.tusar.creativeitem.BillingActivity;
+import com.tusar.creativeitem.BillingDetailsActivity;
 import com.tusar.creativeitem.R;
 import com.tusar.creativeitem.helper.DatabaseHandler;
 
@@ -47,6 +49,7 @@ public class FragmentMainBilling extends Fragment {
 
     ArrayList<String> name_array = new ArrayList<String>();
     ArrayList<String> charge_array = new ArrayList<String>();
+    ArrayList<String> invoice_id_array = new ArrayList<String>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -83,9 +86,11 @@ public class FragmentMainBilling extends Fragment {
 
                                 String patient_name     = jsonObject.getString("patient_name");
                                 String charge     = jsonObject.getString("charge");
+                                String invoice_id     = jsonObject.getString("invoice_id");
 
                                 name_array.add(patient_name);
                                 charge_array.add(charge+ "৳");
+                                invoice_id_array.add(invoice_id);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -102,7 +107,10 @@ public class FragmentMainBilling extends Fragment {
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view,
                                                         int position, long id) {
-
+                                    Intent i = new Intent(getActivity(), BillingDetailsActivity.class);
+                                    i.putExtra("invoice_id", invoice_id_array.get(position));
+                                    System.out.println("invoice_id "+invoice_id_array.get(position));
+                                    startActivity(i);
                                 }
                             });
                             hideDialog();

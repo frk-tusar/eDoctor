@@ -35,10 +35,10 @@
         android:background="@drawable/rounded_edittext"/>
 
    <EditText
-    android:id="@+id/etEmail"
+    android:id="@+id/etAddress"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:hint="Email Address"
+    android:hint="Address"
     android:textColor="#000"
     android:textColorHint="#7c7c7c"
     android:layout_marginLeft="20dp"

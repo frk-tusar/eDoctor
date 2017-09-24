@@ -187,6 +187,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         //Log.d(TAG,"Fetching Data from Sqlite:" + user.toString());
         return user;
     }
+    public void updateUser(String user_id,String name,String phone,String email){
+        SQLiteDatabase db = this.getWritableDatabase();
+        System.out.println("Print from sqlite: Update User");
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_USER_ID,user_id );
+        contentValues.put(KEY_NAME,name );
+        contentValues.put(KEY_PHONE,phone );
+        contentValues.put(KEY_EMAIL,email );
+        //update patient
+        String strFilter = "user_id=" + user_id;
+        long id = db.update(TABLE_USERS, contentValues, strFilter, null);
+
+        Log.d(TAG, "Updated user into sqlite: " + id);
+    }
 
     public void addPatient(String patient_id, String name, String phone, String address, String about, String age, String gender) {
         SQLiteDatabase db = this.getWritableDatabase();

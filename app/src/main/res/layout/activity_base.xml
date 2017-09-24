@@ -69,14 +69,14 @@
                     android:layout_margin="10dp"
                     android:layout_weight="0.9"/>
 
-                <Button
-                    android:id="@+id/btnManage"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:text="Manage"
-                    android:layout_weight="0.1"
-                    android:background="#fff"
-                    android:textAllCaps="false"/>
+                <!--<Button-->
+                    <!--android:id="@+id/btnManage"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="0dp"-->
+                    <!--android:text="Manage"-->
+                    <!--android:layout_weight="0.1"-->
+                    <!--android:background="#fff"-->
+                    <!--android:textAllCaps="false"/>-->
 
             </LinearLayout>
 

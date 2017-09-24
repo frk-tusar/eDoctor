@@ -1,5 +1,6 @@
 package com.tusar.creativeitem;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.support.annotation.Nullable;
@@ -12,12 +13,26 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.tusar.creativeitem.helper.DatabaseHandler;
+import com.tusar.creativeitem.utility.AppConfigURL;
 import com.tusar.creativeitem.utility.CustomPatientList;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class PatientActivity  extends BaseActivity {
 
@@ -26,11 +41,9 @@ public class PatientActivity  extends BaseActivity {
     private com.github.clans.fab.FloatingActionButton fab2;
     private com.github.clans.fab.FloatingActionButton fab3;
     private com.github.clans.fab.FloatingActionButton fab4;
-
     private DatabaseHandler db;
+    private ProgressDialog pDialog;
     private ListView list;
-    private String name1,phone1,patient_id;
-
     ArrayList<String> name_array = new ArrayList<String>();
     ArrayList<String> phone_array = new ArrayList<String>();
     ArrayList<String> p_id_array = new ArrayList<String>();
@@ -44,8 +57,8 @@ public class PatientActivity  extends BaseActivity {
         navigationView.getMenu().getItem(3).setChecked(true);
 
         db = new DatabaseHandler(this);
+        pDialog = new ProgressDialog(this);
 
-        //Floating nav button
         menuRed = (com.github.clans.fab.FloatingActionMenu) findViewById(R.id.menu_red);
         fab1 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab1);
         fab2 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab2);
@@ -83,45 +96,78 @@ public class PatientActivity  extends BaseActivity {
             }
         });
 
+        getPatients();
 
-        //from sqlite
-        ArrayList<HashMap<String,String>> new_list;
-        new_list = db.getAllPatient();
+    } //onCreate end
 
-        // If no data available in table
-        if(new_list.size()==0){
-            System.out.println("No data");
-        }
-        else {
-            for(int i=0;i<new_list.size();i++){
-                HashMap<String,String> content = new HashMap<String, String>();
-                content = new_list.get(i);
-                name1 = content.get("name");
-                phone1 = content.get("phone");
-                patient_id = content.get("patient_id");
-                name_array.add(name1);
-                phone_array.add(phone1);
-                p_id_array.add(patient_id);
-            }
-        }
-        //listview
-        CustomPatientList adapter = new
-                CustomPatientList(PatientActivity.this, name_array, phone_array);
-        list=(ListView)findViewById(R.id.list);
-        list.setAdapter(adapter);
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    public void getPatients(){
+        pDialog.setMessage("Loading...");
+        showDialog();
+        RequestQueue queue = Volley.newRequestQueue(PatientActivity.this);
+        String url = AppConfigURL.URL + "get_patients";
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        //split to string from json response
+                        System.out.println("Res: "+response);
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                String patient_id     = jsonObject.getString("patient_id");
+                                String name     = jsonObject.getString("name");
+                                String phone     = jsonObject.getString("phone");
+                                name_array.add(name);
+                                phone_array.add(phone);
+                                p_id_array.add(patient_id);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            hideDialog();
+                        }
 
+                        //listview
+                        CustomPatientList adapter = new
+                                CustomPatientList(PatientActivity.this, name_array, phone_array);
+                        list=(ListView)findViewById(R.id.list);
+                        list.setAdapter(adapter);
+                        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view,
+                                                    int position, long id) {
+                                Intent i = new Intent(PatientActivity.this, PatientDetailsActivity.class);
+                                i.putExtra("name", name_array.get(position));
+                                i.putExtra("patient_id", p_id_array.get(position));
+                                startActivity(i);
+                            }
+                        });
+                        hideDialog();
+                    }
+                }, new Response.ErrorListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                Intent i = new Intent(PatientActivity.this, PatientDetailsActivity.class);
-                i.putExtra("name", name_array.get(position));
-                i.putExtra("patient_id", p_id_array.get(position));
-                startActivity(i);
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(),"Error Response from server",Toast.LENGTH_LONG).show();
+                hideDialog();
             }
-        });
-
-    } //onCreate
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                // get data from sqlite
+                HashMap<String, String> user = db.getUser();
+                final String token = user.get("token");
+                final String user_id = user.get("user_id");
+                Map<String, String> params = new HashMap<>();
+                params.put("auth_token", token);
+                params.put("user_id", user_id);
+                params.put("authenticate", "true");
+                return params;
+            }
+        };
+        queue.add(stringRequest);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -132,5 +178,13 @@ public class PatientActivity  extends BaseActivity {
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
         return true;
+    }
+    private void showDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+    private void hideDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
     }
 }

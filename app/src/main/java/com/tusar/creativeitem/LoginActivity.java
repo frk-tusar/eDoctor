@@ -149,7 +149,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                     //add other sqlite tables
                                     addChamber();
-                                    addPatients();
+                                    //addPatients();
                                     session.setLogIn(true);
 
                                     Intent ii = new Intent(LoginActivity.this, MainActivity.class);

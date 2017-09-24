@@ -49,18 +49,12 @@ public class BaseActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
     Toolbar toolbar;
-
     private NavigationView navigationView;
     private TextView chambarPickerTextView,txtName;
     private ImageView pickerArrow,imageCross;
     private boolean isPickerShown = false;
-
-
-    //Grid
     private GridView gridview;
-    private Button btnManage;
     private ArrayList<String> ChamberName = new ArrayList<String>();
-
     private DatabaseHandler db;
     private SessionManager session;
 
@@ -68,7 +62,6 @@ public class BaseActivity extends AppCompatActivity {
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,17 +70,15 @@ public class BaseActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //db and session manager
         db = new DatabaseHandler(this);
         session = new SessionManager(getApplicationContext());
+        //getChambers();
 
-        // get data from sqlite
         HashMap<String, String> user = db.getUser();
         final String name = user.get("name");
 
         ArrayList<HashMap<String,String>> chamber_list = db.getAllChamber();
 
-        //Nav dropdown
         findViewById(R.id.header).setVisibility(View.INVISIBLE);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerView = navigationView.inflateHeaderView(R.layout.nav_header_main);
@@ -124,9 +115,9 @@ public class BaseActivity extends AppCompatActivity {
         System.out.println("Tusar>> "+ChamberName);
 
         gridview = (GridView) findViewById(R.id.customgrid);
-        btnManage = (Button) findViewById(R.id.btnManage);
+        //btnManage = (Button) findViewById(R.id.btnManage);
         gridview.setVisibility(View.INVISIBLE);
-        btnManage.setVisibility(View.INVISIBLE);
+        //btnManage.setVisibility(View.INVISIBLE);
         gridview.setAdapter(new CustomGridviewAdapter(this, ChamberName));
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -134,11 +125,8 @@ public class BaseActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                imageCross = (ImageView) view.findViewById(R.id.imageDel);
-
-
-                int lastidcount= parent.getCount()-1;
-                if(lastidcount == position){
+                //imageCross = (ImageView) view.findViewById(R.id.imageDel);
+                if(parent.getCount()-1 == position){
                     // custom dialog
                     AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
                     builder.setView(R.layout.popup_addchamber);
@@ -150,7 +138,6 @@ public class BaseActivity extends AppCompatActivity {
                     final EditText etChamberAddress = (EditText) dialog.findViewById(R.id.etChamberAddress);
                     Button buttonCancel = (Button) dialog.findViewById(R.id.buttonCancel);
                     Button buttonConfirm = (Button) dialog.findViewById(R.id.buttonConfirm);
-
                     buttonCancel.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -161,10 +148,8 @@ public class BaseActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             String Name, Address = null;
-
                             Name = etChamberName.getText().toString().trim();
                             Address = etChamberAddress.getText().toString().trim();
-
                             if (etChamberName.getText().toString().length() == 0) {
                                 etChamberName.setError("Name cannot be blank");
                                 return;
@@ -185,79 +170,72 @@ public class BaseActivity extends AppCompatActivity {
                     String Slecteditem= ChamberName.get(+position);
                     HashMap<String, String> chamber = db.getChamberByName(Slecteditem);
                     String chamber_id = chamber.get("chamber_id");
-
                     db.updateChamber(chamber_id);
-
                     chambarPickerTextView.setText(Slecteditem+" Chambar");
                     toggleMenu();
                 }
             }
         });
 
-        btnManage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                imageCross.setVisibility(View.VISIBLE);
-            }
-        });
+//        btnManage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                imageCross.setVisibility(View.VISIBLE);
+//            }
+//        });
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
-
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
                 final String appPackageName = getPackageName();
-
                 switch (item.getItemId()) {
-
                     case R.id.nav_home:
                         Intent home = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(home);
                         //finish();
                         drawerLayout.closeDrawers();
                         break;
-
                     case R.id.nav_appointment:
                         Intent appoint = new Intent(getApplicationContext(), AppointmentActivity.class);
                         startActivity(appoint);
                         //finish();
                         drawerLayout.closeDrawers();
                         break;
-
                     case R.id.nav_prescription:
                         Intent prescription = new Intent(getApplicationContext(), PrescriptionActivity.class);
                         startActivity(prescription);
                         //finish();
                         drawerLayout.closeDrawers();
                         break;
-
                     case R.id.nav_patient:
                         Intent patient = new Intent(getApplicationContext(), PatientActivity.class);
                         startActivity(patient);
                         drawerLayout.closeDrawers();
                         break;
-
                     case R.id.nav_billing:
                         Intent billing = new Intent(getApplicationContext(), BillingActivity.class);
                         startActivity(billing);
                         //finish();
                         drawerLayout.closeDrawers();
                         break;
-
                     case R.id.nav_schedule:
                         Intent schedule = new Intent(getApplicationContext(), ScheduleActivity.class);
                         startActivity(schedule);
                         drawerLayout.closeDrawers();
                         break;
-
                     case R.id.nav_profile:
                         Intent profile = new Intent(getApplicationContext(), ProfileActivity.class);
                         startActivity(profile);
                         drawerLayout.closeDrawers();
                         break;
-
+                    case R.id.nav_password:
+                        Intent password = new Intent(getApplicationContext(), PasswordActivity.class);
+                        startActivity(password);
+                        drawerLayout.closeDrawers();
+                        break;
                     case R.id.nav_logout:
                         session.setLogIn(false);
                         db.deleteTables();
@@ -266,13 +244,10 @@ public class BaseActivity extends AppCompatActivity {
                         startActivity(logout);
                         drawerLayout.closeDrawers();
                         break;
-
                 }
                 return false;
             }
         });
-
-
 
     } //onCreate ends here
     public void addChamber(final String name, final String address){
@@ -285,7 +260,6 @@ public class BaseActivity extends AppCompatActivity {
         final String token = user.get("token");
         final String user_id = user.get("user_id");
         final String account_id = user.get("account_id");
-        final String chamber_id = String.valueOf(5);
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -294,16 +268,25 @@ public class BaseActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         //split to string from json response
                         System.out.println("Res: "+response);
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                String status     = jsonObject.getString("status");
+                                String chamber_id     = jsonObject.getString("chamber_id");
+                                if(status.equals("success")){
+                                    db.addChamber(chamber_id,name,address,"",account_id);
 
-                        if(response.equals("success")){
-                            db.addChamber(chamber_id,name,address,"",account_id);
-
-                            finish();
-                            startActivity(getIntent());
-                            Toast.makeText(getApplicationContext(),"Add Chamber Successfully!",Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            Toast.makeText(getApplicationContext(),"There is a problem while create new chamber.",Toast.LENGTH_SHORT).show();
+                                    finish();
+                                    startActivity(getIntent());
+                                    Toast.makeText(getApplicationContext(),"Add Chamber Successfully!",Toast.LENGTH_SHORT).show();
+                                }
+                                else {
+                                    Toast.makeText(getApplicationContext(),"There is a problem while create new chamber.",Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
 
                     }
@@ -315,7 +298,6 @@ public class BaseActivity extends AppCompatActivity {
 
             }
         }) {
-            //adding parameters to the request 01717255741
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
 
@@ -334,7 +316,6 @@ public class BaseActivity extends AppCompatActivity {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
-
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -361,13 +342,13 @@ public class BaseActivity extends AppCompatActivity {
             pickerArrow.setImageResource(R.drawable.ic_arrow_up);
             setMenuItemsVisible(false);
             gridview.setVisibility(View.VISIBLE);
-            btnManage.setVisibility(View.VISIBLE);
+            //btnManage.setVisibility(View.VISIBLE);
             isPickerShown = true;
         } else {
             pickerArrow.setImageResource(R.drawable.ic_arrow_down);
             setMenuItemsVisible(true);
             gridview.setVisibility(View.INVISIBLE);
-            btnManage.setVisibility(View.INVISIBLE);
+            //btnManage.setVisibility(View.INVISIBLE);
             isPickerShown = false;
         }
     }
@@ -378,6 +359,46 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    public void getChambers(){
 
+        RequestQueue queue = Volley.newRequestQueue(BaseActivity.this);
+        String url = AppConfigURL.URL + "get_chambers";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        System.out.println("Res chamber: "+response);
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                String name     = jsonObject.getString("name");
+                                ChamberName.add(name);
+                            }
 
+                            System.out.println("Chambers: "+ChamberName);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(),"Error Response",Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> user = db.getUser();
+                final String token = user.get("token");
+                final String user_id = user.get("user_id");
+                Map<String, String> params = new HashMap<>();
+                params.put("auth_token", token);
+                params.put("user_id", user_id);
+                params.put("authenticate", "true");
+                return params;
+            }
+        };
+        queue.add(stringRequest);
+    }
 }

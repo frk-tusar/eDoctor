@@ -71,31 +71,20 @@ public class ScheduleActivity extends BaseActivity {
                     }
                     else {
                         String morning = content1.get("morning");
+                        String morning_open = content1.get("morning_open");
+                        String morning_close = content1.get("morning_close");
+
                         String afternoon = content1.get("afternoon");
+                        String afternoon_open = content1.get("afternoon_open");
+                        String afternoon_close = content1.get("afternoon_close");
+
                         String evening = content1.get("evening");
+                        String evening_open = content1.get("evening_open");
+                        String evening_close = content1.get("evening_close");
+
                         if(morning != "" && afternoon != "" && evening != ""){
                             time = morning + "\n" + afternoon + "\n" + evening;
                         }
-//                        if(morning != "" ){
-//                            time = morning;
-//                        }
-//                        if(afternoon != "" ){
-//                            if(time!=""){
-//                                time = time + "\n" +afternoon;
-//                            }
-//                            else {
-//                                time = afternoon;
-//                            }
-//                        }
-//                        if(evening != "" ){
-//                            if(time!=""){
-//                                time = time + "\n" +evening;
-//                            }
-//                            else {
-//                                time = evening;
-//                            }
-//
-//                        }
 
                         time_array.add(time);
                     }
@@ -122,8 +111,6 @@ public class ScheduleActivity extends BaseActivity {
                 final AlertDialog dialog = builder.create();
                 dialog.show();
 
-                final EditText etChamberName = (EditText) dialog.findViewById(R.id.etChamberName);
-                final EditText etChamberAddress = (EditText) dialog.findViewById(R.id.etChamberAddress);
                 Button buttonCancel = (Button) dialog.findViewById(R.id.buttonCancel);
                 Button buttonConfirm = (Button) dialog.findViewById(R.id.buttonConfirm);
 
